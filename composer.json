@@ -1,0 +1,58 @@
+{
+    "name": "risetechapps/address-for-tenancy",
+    "description": "",
+    "keywords": [
+        "risetechapps",
+        "address"
+    ],
+    "homepage": "https://github.com/risetechapps/address",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Rise Tech",
+            "email": "apps@risetech.com.br",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.1",
+        "illuminate/support": "^9.0|^10.0",
+        "risetechapps/has-to-upper": "^1.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^7.0|^8.0",
+        "phpunit/phpunit": "^10.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "RiseTechApps\\Address\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "RiseTechApps\\Address\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "RiseTechApps\\Address\\AddressServiceProvider"
+            ],
+            "aliases": {
+                "Address": "RiseTechApps\\Address\\AddressFacade"
+            }
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "version": "1.0"
+}
