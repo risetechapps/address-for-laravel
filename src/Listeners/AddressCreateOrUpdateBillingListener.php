@@ -39,7 +39,10 @@ class AddressCreateOrUpdateBillingListener
 
 
         } catch (\Exception $exception) {
-
+            logglyError()->exception($exception)
+                ->withRequest($event->request)
+                ->performedOn(static::class)
+                ->log("Error registering address");
         }
     }
 }
