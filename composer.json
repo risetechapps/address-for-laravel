@@ -5,7 +5,7 @@
         "risetechapps",
         "address"
     ],
-    "homepage": "https://github.com/risetechapps/address",
+    "homepage": "https://github.com/risetechapps/address-for-tenancy",
     "license": "MIT",
     "type": "library",
     "authors": [
@@ -18,7 +18,10 @@
     "require": {
         "php": "^8.1",
         "illuminate/support": "^9.0|^10.0",
-        "risetechapps/has-to-upper": "^1.0"
+        "risetechapps/uuid-for-laravel": "^1.0",
+        "risetechapps/to-upper-for-laravel": "^1.0",
+        "risetechapps/monitoring-for-laravel": "^1.0"
+
     },
     "require-dev": {
         "orchestra/testbench": "^7.0|^8.0",
