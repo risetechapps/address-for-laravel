@@ -13,11 +13,10 @@ trait HasAddress
         static::saved(function ($model) {
             event(new AddressCreateOrUpdateDefaultEvent($model));
         });
-
     }
 
     public function address(): HasOne
     {
-        return $this->hasOne(Address::class, 'address_id')->where('type', 'default');
+        return $this->hasOne(Address::class, 'address_id')->where('type', 'DEFAULT');
     }
 }
