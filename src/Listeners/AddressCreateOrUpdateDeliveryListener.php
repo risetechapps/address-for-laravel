@@ -22,20 +22,21 @@ class AddressCreateOrUpdateDeliveryListener
                 return;
             }
 
+            if(count($chargeAddresses) > 0){
 
-            if ($created) {
-                $event->model->addressDelivery()->delete();
+                if ($created) {
+                    $event->model->addressDelivery()->delete();
+                }
+
+                foreach ($chargeAddresses as $address) {
+                    $address = \RiseTechApps\Address\Address::fillWithDefault($address, $event->model);
+
+                    $address['address_type'] = get_class($event->model);
+                    $address['address_id'] = $event->model->getKey();
+                    $address['type'] = 'delivery';
+                    AddressModel::create($address);
+                }
             }
-
-            foreach ($chargeAddresses as $address) {
-                $address = \RiseTechApps\Address\Address::fillWithDefault($address, $event->model);
-
-                $address['address_type'] = get_class($event->model);
-                $address['address_id'] = $event->model->getKey();
-                $address['type'] = 'delivery';
-                AddressModel::create($address);
-            }
-
 
         } catch (\Exception $exception) {
             logglyError()->exception($exception)

@@ -20,23 +20,24 @@ class AddressCreateOrUpdateBillingListener
             $BillingAddresses = $event->request->input('address_billing', []);
 
 
-            if(!is_null($event->model->getOriginal('deleted_at'))){
+            if (!is_null($event->model->getOriginal('deleted_at'))) {
                 return;
             }
 
-            if ($created) {
-                $event->model->addressBilling()->delete();
+            if (count($BillingAddresses) > 0) {
+                if ($created) {
+                    $event->model->addressBilling()->delete();
+                }
+
+                foreach ($BillingAddresses as $address) {
+                    $address = Address::fillWithDefault($address, $event->model);
+
+                    $address['address_type'] = get_class($event->model);
+                    $address['address_id'] = $event->model->getKey();
+                    $address['type'] = 'billing';
+                    AddressModel::create($address);
+                }
             }
-
-            foreach ($BillingAddresses as $address) {
-                $address = Address::fillWithDefault($address, $event->model);
-
-                $address['address_type'] = get_class($event->model);
-                $address['address_id'] = $event->model->getKey();
-                $address['type'] = 'billing';
-                AddressModel::create($address);
-            }
-
 
         } catch (\Exception $exception) {
             logglyError()->exception($exception)
