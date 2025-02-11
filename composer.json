@@ -18,9 +18,9 @@
     "require": {
         "php": "^8.1",
         "illuminate/support": "^9.0|^10.0",
-        "risetechapps/uuid-for-laravel": "^1.0",
-        "risetechapps/to-upper-for-laravel": "^1.0",
-        "risetechapps/monitoring-for-laravel": "^1.0"
+        "risetechapps/has-uuid-for-laravel": "^1.00",
+        "risetechapps/to-upper-for-laravel": "^1.0.0",
+        "risetechapps/monitoring": "^1.0.0"
 
     },
     "require-dev": {
