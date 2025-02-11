@@ -1,11 +1,11 @@
 {
-    "name": "risetechapps/address-for-tenancy",
+    "name": "risetechapps/address-for-laravel",
     "description": "",
     "keywords": [
         "risetechapps",
         "address"
     ],
-    "homepage": "https://github.com/risetechapps/address-for-tenancy",
+    "homepage": "https://github.com/risetechapps/address-for-laravel",
     "license": "MIT",
     "type": "library",
     "authors": [
@@ -57,5 +57,5 @@
     },
     "minimum-stability": "stable",
     "prefer-stable": true,
-    "version": "1.0"
+    "version": "1.0.0"
 }
