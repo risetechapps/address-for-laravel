@@ -4,7 +4,6 @@ namespace RiseTechApps\Address\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use RiseTechApps\FormRequest\Services\ServicesForm;
 
 class AddressResource extends JsonResource
 {
@@ -30,8 +29,14 @@ class AddressResource extends JsonResource
     {
         try {
 
-            $country = collect(ServicesForm::getCountryInfo($this->country));
-            return collect($country->get('translations'))->get(app()->getLocale(), $country->get('name'));
+            $result = \RiseTechApps\OrchestratorLink\Feature\Service::getCountryInfo($this->country);
+
+            if ($result['success'] === true) {
+                $data = collect($result['data']);
+                return collect($data->get('translations'))->get(app()->getLocale(), $data->get('name'));
+            }
+            return null;
+
         } catch (\Exception $exception) {
             return null;
         }
@@ -40,8 +45,13 @@ class AddressResource extends JsonResource
     private function getStateDescription(): ?string
     {
         try {
+            $result = \RiseTechApps\OrchestratorLink\Feature\Service::getStateInfo($this->country, $this->state);
 
-            return collect(ServicesForm::getStateInfo($this->country, $this->state))->get('name');
+            if ($result['success'] === true) {
+                $data = collect($result['data']);
+                return $data->get('name');
+            }
+            return null;
         } catch (\Exception $exception) {
             return null;
         }

@@ -18,6 +18,6 @@ trait HasAddressBilling
 
     public function addressBilling(): HasMany
     {
-        return $this->hasMany(Address::class, 'address_id')->where('type', 'billing');
+        return $this->hasMany(Address::class, 'address_id')->where('type', 'BILLING');
     }
 }

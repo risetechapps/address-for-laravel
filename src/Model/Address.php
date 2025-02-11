@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use RiseTechApps\HasUuid\Traits\HasUuid\HasUuid;
+use RiseTechApps\Monitoring\Traits\HasLoggly\HasLoggly;
 use RiseTechApps\ToUpper\Traits\HasToUpper;
 
 class Address extends Model
 {
-    use HasFactory, Notifiable, HasUuid, SoftDeletes, HasToUpper;
+    use HasFactory, Notifiable, HasUuid, SoftDeletes, HasToUpper, HasLoggly;
 
     /**
      * The attributes that are mass assignable.
