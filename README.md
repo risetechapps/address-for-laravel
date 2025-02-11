@@ -1,37 +1,61 @@
-# Very short description of the package
+# Laravel Address
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/RiseTechApps\/address.svg?style=flat-square)](https://packagist.org/packages/RiseTechApps\/address)
-[![Total Downloads](https://img.shields.io/packagist/dt/RiseTechApps\/address.svg?style=flat-square)](https://packagist.org/packages/RiseTechApps\/address)
-![GitHub Actions](https://github.com/RiseTechApps\/address/actions/workflows/main.yml/badge.svg)
+## 📌 Sobre o Projeto
+O **Address for Laravel** é um package para Laravel que você consegue gerenciar endereços para os models.
 
-This is where your description should go. Try and limit it to a paragraph or two, and maybe throw in a mention of what PSRs you support to avoid any confusion with users and contributors.
+## ✨ Funcionalidades
+- 🏷 **Address** crie um endereço padrão para o seu model
+- 🏷 **Address Delivery** crie múltiplos endereços de entrega para o seu model
+- 🏷 **Address Billing** crie múltiplos endereços de cobrança para o seu model
 
-## Installation
+---
 
-You can install the package via composer:
+## 🚀 Instalação
 
+### 1️⃣ Requisitos
+Antes de instalar, certifique-se de que seu projeto atenda aos seguintes requisitos:
+- PHP >= 8.0
+- Laravel >= 10
+- Composer instalado
+
+### 2️⃣ Instalação do Package
+Execute o seguinte comando no terminal:
 ```bash
-
-composer require RiseTechApps\apps/address
+composer require risetechapps/address-for-laravel
 ```
 
-### Changelog
+### 3️⃣ Configure seu Model
+```php
+  
+  use RiseTechApps\Address\Traits\HasAddress\HasAddress;
+  use RiseTechApps\Address\Traits\HasAddress\HasAddressBilling;
+  use RiseTechApps\Address\Traits\HasAddress\HasAddressDelivery;
+  
+  class Client extends Model
+  {
+    use HasFactory, HasAddress, HasAddressDelivery, HasAddressBilling;
+  }
+```
 
-Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
+### 4️⃣ Rodar Migrations
+```bash
+php artisan migrate
+```
+---
 
-## Contributing
+## 🛠 Contribuição
+Sinta-se à vontade para contribuir! Basta seguir estes passos:
+1. Faça um fork do repositório
+2. Crie uma branch (`feature/nova-funcionalidade`)
+3. Faça um commit das suas alterações
+4. Envie um Pull Request
 
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
+---
 
-### Security
+## 📜 Licença
+Este projeto é distribuído sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
-If you discover any security related issues, please email apps@RiseTechApps\.com.br instead of using the issue tracker.
+---
 
-## Credits
+💡 **Desenvolvido por [Rise Tech](https://risetech.com.br)**
 
--   [Rise Tech](https://github.com/RiseTechApps\apps)
--   [All Contributors](../../contributors)
-
-## License
-
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
