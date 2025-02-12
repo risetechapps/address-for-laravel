@@ -40,7 +40,10 @@ class Address extends Model
      */
     protected $hidden = [
         'address_type',
-        'address_id'
+        'address_id',
+        'created_at',
+        'updated_at',
+        'deleted_at',
     ];
 
     /**
