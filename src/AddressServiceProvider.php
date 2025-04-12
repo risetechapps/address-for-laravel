@@ -28,7 +28,7 @@ class AddressServiceProvider extends ServiceProvider
     public function register(): void
     {
         // Register the main class to use with the facade
-        $this->app->singleton('address', function () {
+         $this->app->singleton(Address::class, function () {
             return new Address;
         });
     }
