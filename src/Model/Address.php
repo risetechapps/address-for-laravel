@@ -2,8 +2,10 @@
 
 namespace RiseTechApps\Address\Model;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use RiseTechApps\HasUuid\Traits\HasUuid\HasUuid;
@@ -13,6 +15,7 @@ use RiseTechApps\ToUpper\Traits\HasToUpper;
 class Address extends Model
 {
     use HasFactory, Notifiable, HasUuid, SoftDeletes, HasToUpper, HasLoggly;
+    use Prunable;
 
     /**
      * The attributes that are mass assignable.
@@ -68,5 +71,10 @@ class Address extends Model
             $this->zip_code ? ' - CEP: ' . $this->zip_code : '',
         ];
         return implode('', array_filter($parts));
+    }
+
+    public function prunable(): Builder|Address
+    {
+        return static::onlyTrashed()->where('deleted_at', '<=', now()->subDays(30));
     }
 }
