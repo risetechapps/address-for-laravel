@@ -16,7 +16,16 @@ class AddressCreateOrUpdateDeliveryListener
 
         try {
             $created = !is_null($event->model->address);
-            $chargeAddresses = $event->request->input('address_delivery', []);
+
+            if ($event->request->has('address_delivery')) {
+                $chargeAddresses = $event->request->input('address_delivery');
+            }else if ($event->request->has('person.address_delivery')) {
+                $chargeAddresses = $event->request->input('person.address_delivery');
+            }else{
+                if(!empty(\RiseTechApps\Address\Address::getAddressDelivery())){
+                    $chargeAddresses = \RiseTechApps\Address\Address::getAddressDelivery();
+                }
+            }
 
             if (!is_null($event->model->getOriginal('deleted_at'))) {
                 return;
