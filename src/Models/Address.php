@@ -1,6 +1,6 @@
 <?php
 
-namespace RiseTechApps\Address\Model;
+namespace RiseTechApps\Address\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -59,7 +59,7 @@ class Address extends Model
 
     protected $appends = ['full_address'];
 
-    public function getFullAddressAttribute()
+    public function getFullAddressAttribute(): string
     {
         $parts = [
             $this->address,

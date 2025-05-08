@@ -4,7 +4,7 @@ namespace RiseTechApps\Address\Listeners;
 
 use Illuminate\Support\Arr;
 use RiseTechApps\Address\Events\Address\AddressCreateOrUpdateDefaultEvent;
-use RiseTechApps\Address\Model\Address;
+use RiseTechApps\Address\Models\Address;
 
 class AddressCreateOrUpdateDefaultListener
 {

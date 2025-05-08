@@ -4,7 +4,7 @@ namespace RiseTechApps\Address\Traits\HasAddress;
 
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use RiseTechApps\Address\Events\Address\AddressCreateOrUpdateDeliveryEvent;
-use RiseTechApps\Address\Model\Address;
+use RiseTechApps\Address\Models\Address;
 
 trait HasAddressDelivery
 {

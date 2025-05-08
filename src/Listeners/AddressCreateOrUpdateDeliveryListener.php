@@ -3,7 +3,7 @@
 namespace RiseTechApps\Address\Listeners;
 
 use RiseTechApps\Address\Events\Address\AddressCreateOrUpdateDeliveryEvent;
-use RiseTechApps\Address\Model\Address as AddressModel;
+use RiseTechApps\Address\Models\Address as AddressModel;
 
 class AddressCreateOrUpdateDeliveryListener
 {

@@ -4,7 +4,7 @@ namespace RiseTechApps\Address\Listeners;
 
 use RiseTechApps\Address\Address;
 use RiseTechApps\Address\Events\Address\AddressCreateOrUpdateBillingEvent;
-use RiseTechApps\Address\Model\Address as AddressModel;
+use RiseTechApps\Address\Models\Address as AddressModel;
 
 class AddressCreateOrUpdateBillingListener
 {
