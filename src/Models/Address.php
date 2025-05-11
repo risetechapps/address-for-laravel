@@ -75,6 +75,6 @@ class Address extends Model
 
     public function prunable(): Builder|Address
     {
-        return static::onlyTrashed()->where('deleted_at', '<=', now()->subDays(30));
+        return static::onlyTrashed()->where('deleted_at', '<=', now()->subDays(1));
     }
 }
