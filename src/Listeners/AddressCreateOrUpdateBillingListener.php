@@ -21,15 +21,23 @@ class AddressCreateOrUpdateBillingListener
 
             if ($event->request->has('address_billing')) {
                 $BillingAddresses = $event->request->input('address_billing');
-            }else if ($event->request->has('person.address_delivery')) {
+            } else if ($event->request->has('person.address_delivery')) {
                 $BillingAddresses = $event->request->input('person.address_billing');
-            }else{
-                if(!empty(\RiseTechApps\Address\Address::getAddressBilling())){
+            } else {
+                if (!empty(\RiseTechApps\Address\Address::getAddressBilling())) {
                     $BillingAddresses = \RiseTechApps\Address\Address::getAddressBilling();
                 }
             }
 
             if (!is_null($event->model->getOriginal('deleted_at'))) {
+                return;
+            }
+
+            $addresses = array_filter($BillingAddresses, function ($address) {
+                return collect($address)->filter()->isNotEmpty();
+            });
+
+            if (!empty($addresses)) {
                 return;
             }
 

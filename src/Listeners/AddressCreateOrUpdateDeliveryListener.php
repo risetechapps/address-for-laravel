@@ -31,6 +31,15 @@ class AddressCreateOrUpdateDeliveryListener
                 return;
             }
 
+
+            $addresses = array_filter($chargeAddresses, function ($address) {
+                return collect($address)->filter()->isNotEmpty();
+            });
+
+            if (!empty($addresses)) {
+                return;
+            }
+
             if(count($chargeAddresses) > 0){
 
                 if ($created) {
