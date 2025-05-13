@@ -37,7 +37,7 @@ class AddressCreateOrUpdateBillingListener
                 return collect($address)->filter()->isNotEmpty();
             });
 
-            if (!empty($addresses)) {
+            if (empty($addresses)) {
                 return;
             }
 
