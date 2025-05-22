@@ -40,7 +40,7 @@ class Address
         return static::$delivery;
     }
 
-    public static function fillWithDefault($address, $model)
+    public static function fillWithDefault($address, $model): array
     {
         $defaultAddress = $model->address()->first();
 
