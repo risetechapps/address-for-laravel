@@ -27,10 +27,11 @@ class AddressCreateOrUpdateDeliveryListener
                 }
             }
 
+            $chargeAddresses = isset($chargeAddresses[0]) && is_array($chargeAddresses[0]) ? $chargeAddresses : [$chargeAddresses];
+
             if (!is_null($event->model->getOriginal('deleted_at'))) {
                 return;
             }
-
 
             $addresses = array_filter($chargeAddresses, function ($address) {
                 return collect($address)->filter()->isNotEmpty();

@@ -29,6 +29,8 @@ class AddressCreateOrUpdateBillingListener
                 }
             }
 
+            $BillingAddresses = isset($BillingAddresses[0]) && is_array($BillingAddresses[0]) ? $BillingAddresses : [$BillingAddresses];
+
             if (!is_null($event->model->getOriginal('deleted_at'))) {
                 return;
             }
