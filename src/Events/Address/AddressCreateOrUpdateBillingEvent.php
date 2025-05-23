@@ -12,8 +12,6 @@ use Illuminate\Queue\SerializesModels;
 
 class AddressCreateOrUpdateBillingEvent
 {
-    use Dispatchable;
-
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public Model $model;
