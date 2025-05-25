@@ -41,7 +41,8 @@ class AddressChargeResource extends JsonResource
         } catch (\Exception $exception) {
             logglyError()->exception($exception)
                 ->withTags(['action' => 'getStateDescription'])
-                ->performedOn(['model' => $this, 'class' => self::class])
+                ->performedOn(self::class)
+                ->withProperties(['model' => $this])
                 ->log("Error getting country description");
             return null;
         }
