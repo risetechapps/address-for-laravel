@@ -39,10 +39,7 @@ class AddressDeliveryResource extends JsonResource
             return null;
 
         } catch (\Exception $exception) {
-            logglyError()->exception($exception)
-                ->withTags(['action' => 'getStateDescription'])
-                ->performedOn(['model' => $this, 'class' => self::class])
-                ->log("Error getting country description");
+            logglyError()->exception($exception)->performedOn($this)->log("Error getting country description");
             return null;
         }
     }
@@ -58,10 +55,7 @@ class AddressDeliveryResource extends JsonResource
             }
             return null;
         } catch (\Exception $exception) {
-            logglyError()->exception($exception)
-                ->withTags(['action' => 'getStateDescription'])
-                ->performedOn(['model' => $this, 'class' => self::class])
-                ->log("Error getting state description");
+            logglyError()->exception($exception)->performedOn($this)->log("Error getting state description");
             return null;
         }
     }
