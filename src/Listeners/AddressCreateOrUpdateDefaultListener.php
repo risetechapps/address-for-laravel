@@ -68,7 +68,7 @@ class AddressCreateOrUpdateDefaultListener
             }else{
                 $address['address_type'] = get_class($event->model);
                 $address['address_id'] = $event->model->getKey();
-                $address['type'] = 'default';
+                $address['type'] = 'DEFAULT';
                 Address::create($address);
             }
 

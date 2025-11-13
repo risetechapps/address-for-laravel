@@ -21,7 +21,7 @@ class AddressCreateOrUpdateBillingListener
 
             if ($event->request->has('address_billing')) {
                 $BillingAddresses = $event->request->input('address_billing');
-            } else if ($event->request->has('person.address_delivery')) {
+            } else if ($event->request->has('person.address_billing')) {
                 $BillingAddresses = $event->request->input('person.address_billing');
             } else {
                 if (!empty(\RiseTechApps\Address\Address::getAddressBilling())) {
@@ -53,7 +53,7 @@ class AddressCreateOrUpdateBillingListener
 
                     $address['address_type'] = get_class($event->model);
                     $address['address_id'] = $event->model->getKey();
-                    $address['type'] = 'billing';
+                    $address['type'] = 'BILLING';
                     AddressModel::create($address);
                 }
             }
