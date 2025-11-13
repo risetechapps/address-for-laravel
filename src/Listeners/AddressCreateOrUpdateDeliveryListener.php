@@ -2,8 +2,10 @@
 
 namespace RiseTechApps\Address\Listeners;
 
+use RiseTechApps\Address\Address;
 use RiseTechApps\Address\Events\Address\AddressCreateOrUpdateDeliveryEvent;
 use RiseTechApps\Address\Models\Address as AddressModel;
+use RiseTechApps\Address\Support\AddressPayloadResolver;
 
 class AddressCreateOrUpdateDeliveryListener
 {
@@ -17,17 +19,11 @@ class AddressCreateOrUpdateDeliveryListener
         try {
             $created = !is_null($event->model->address);
 
-            if ($event->request->has('address_delivery')) {
-                $chargeAddresses = $event->request->input('address_delivery');
-            }else if ($event->request->has('person.address_delivery')) {
-                $chargeAddresses = $event->request->input('person.address_delivery');
-            }else{
-                if(!empty(\RiseTechApps\Address\Address::getAddressDelivery())){
-                    $chargeAddresses = \RiseTechApps\Address\Address::getAddressDelivery();
-                }
-            }
-
-            $chargeAddresses = isset($chargeAddresses[0]) && is_array($chargeAddresses[0]) ? $chargeAddresses : [$chargeAddresses];
+            $chargeAddresses = AddressPayloadResolver::multiple(
+                $event->request,
+                'address_delivery',
+                Address::getAddressDelivery()
+            );
 
             if (!is_null($event->model->getOriginal('deleted_at'))) {
                 return;
@@ -52,7 +48,7 @@ class AddressCreateOrUpdateDeliveryListener
 
                     $address['address_type'] = get_class($event->model);
                     $address['address_id'] = $event->model->getKey();
-                    $address['type'] = 'DELIVERY';
+                    $address['type'] = Address::TYPE_DELIVERY;
                     AddressModel::create($address);
                 }
             }

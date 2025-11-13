@@ -6,6 +6,10 @@ use Illuminate\Support\Arr;
 
 class Address
 {
+    public const TYPE_DEFAULT = 'DEFAULT';
+    public const TYPE_DELIVERY = 'DELIVERY';
+    public const TYPE_BILLING = 'BILLING';
+
     protected static array $address = [];
     protected static array $billing = [];
     protected static array $delivery = [];
