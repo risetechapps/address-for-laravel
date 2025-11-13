@@ -52,7 +52,7 @@ class AddressCreateOrUpdateDeliveryListener
 
                     $address['address_type'] = get_class($event->model);
                     $address['address_id'] = $event->model->getKey();
-                    $address['type'] = 'delivery';
+                    $address['type'] = 'DELIVERY';
                     AddressModel::create($address);
                 }
             }
