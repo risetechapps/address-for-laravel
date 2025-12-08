@@ -29,12 +29,15 @@ class AddressChargeResource extends JsonResource
     private function getCountryDescription(): ?string
     {
         try {
-
             $result = \RiseTechApps\OrchestratorLink\Feature\Service::getCountryInfo($this->country);
 
             if ($result['success'] === true) {
                 $data = collect($result['data']);
-                return collect($data->get('translations'))->get(app()->getLocale(), $data->get('name'));
+                $translation = collect($data->get('translations', []));
+
+                $defaultName = $data->get('name', null);
+
+                return $translation->get(app()->getLocale(), $defaultName);
             }
             return null;
 
@@ -51,7 +54,7 @@ class AddressChargeResource extends JsonResource
 
             if ($result['success'] === true) {
                 $data = collect($result['data']);
-                return $data->get('name');
+                return $data->get('name', "");
             }
             return null;
         } catch (\Exception $exception) {
