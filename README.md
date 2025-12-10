@@ -8,8 +8,8 @@
 
 ### ✅ Requisitos
 
-* PHP >= 8.0
-* Laravel >= 10
+* PHP >= 8.3
+* Laravel >= 12
 * Composer
 
 ### ⚙️ Passo a Passo
