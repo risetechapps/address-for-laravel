@@ -26,40 +26,38 @@ class AddressChargeResource extends JsonResource
         ];
     }
 
-    private function getCountryDescription(): ?string
+    private function getCountryDescription(): string
     {
         try {
-            $result = \RiseTechApps\OrchestratorLink\Feature\Service::getCountryInfo($this->country);
+            $result = orchestrator()->getCountryInfo($this->country);
 
             if ($result['success'] === true) {
                 $data = collect($result['data']);
                 $translation = collect($data->get('translations', []));
-
-                $defaultName = $data->get('name', null);
-
+                $defaultName = $data->get('native', "");
                 return $translation->get(app()->getLocale(), $defaultName);
             }
-            return null;
+            return "";
 
         } catch (\Exception $exception) {
             logglyError()->exception($exception)->performedOn($this)->log("Error getting country description");
-            return null;
+            return "";
         }
     }
 
-    private function getStateDescription(): ?string
+    private function getStateDescription(): string
     {
         try {
-            $result = \RiseTechApps\OrchestratorLink\Feature\Service::getStateInfo($this->country, $this->state);
+            $result = orchestrator()->getStateInfo($this->country, $this->state);
 
             if ($result['success'] === true) {
                 $data = collect($result['data']);
                 return $data->get('name', "");
             }
-            return null;
+            return "";
         } catch (\Exception $exception) {
             logglyError()->exception($exception)->performedOn($this)->log("Error getting state description");
-            return null;
+            return "";
         }
     }
 }
