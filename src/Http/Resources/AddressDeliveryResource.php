@@ -28,6 +28,9 @@ class AddressDeliveryResource extends JsonResource
 
     private function getCountryDescription(): string
     {
+
+        if (!$this->country) return "";
+
         try {
             $result = orchestrator()->getCountryInfo($this->country);
 
@@ -47,6 +50,8 @@ class AddressDeliveryResource extends JsonResource
 
     private function getStateDescription(): string
     {
+        if (!$this->country || !$this->state) return "";
+
         try {
             $result = orchestrator()->getStateInfo($this->country, $this->state);
 
