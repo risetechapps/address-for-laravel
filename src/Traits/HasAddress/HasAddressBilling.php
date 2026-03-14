@@ -2,7 +2,7 @@
 
 namespace RiseTechApps\Address\Traits\HasAddress;
 
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use RiseTechApps\Address\Events\Address\AddressCreateOrUpdateBillingEvent;
 use RiseTechApps\Address\Models\Address;
 
@@ -16,8 +16,9 @@ trait HasAddressBilling
 
     }
 
-    public function addressBilling(): HasMany
+    public function addressBilling(): MorphMany
     {
-        return $this->hasMany(Address::class, 'address_id')->where('type', 'BILLING');
+        return $this->morphMany(Address::class, 'address')
+            ->where('type', 'BILLING');
     }
 }

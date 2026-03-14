@@ -2,7 +2,7 @@
 
 namespace RiseTechApps\Address\Traits\HasAddress;
 
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use RiseTechApps\Address\Events\Address\AddressCreateOrUpdateDeliveryEvent;
 use RiseTechApps\Address\Models\Address;
 
@@ -16,8 +16,9 @@ trait HasAddressDelivery
 
     }
 
-    public function addressDelivery(): HasMany
+    public function addressDelivery(): MorphMany
     {
-        return $this->hasMany(Address::class, 'address_id')->where('type', 'DELIVERY');
+        return $this->morphMany(Address::class, 'address')
+            ->where('type', 'DELIVERY');
     }
 }
