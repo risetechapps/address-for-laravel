@@ -17,7 +17,7 @@ class AddressCreateOrUpdateDeliveryListener
     {
 
         try {
-            $created = !is_null($event->model->address);
+            $created = !is_null($event->model->addressDelivery);
 
             $chargeAddresses = AddressPayloadResolver::multiple(
                 $event->request,
