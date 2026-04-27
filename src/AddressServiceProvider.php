@@ -8,6 +8,8 @@ use Illuminate\Support\ServiceProvider;
 use RiseTechApps\Address\Events\Address\AddressCreateOrUpdateBillingEvent;
 use RiseTechApps\Address\Events\Address\AddressCreateOrUpdateDefaultEvent;
 use RiseTechApps\Address\Events\Address\AddressCreateOrUpdateDeliveryEvent;
+use RiseTechApps\Address\Models\Address;
+use RiseTechApps\Address\Observers\AddressObserver;
 
 class AddressServiceProvider extends ServiceProvider
 {
@@ -21,6 +23,8 @@ class AddressServiceProvider extends ServiceProvider
         Event::listen(AddressCreateOrUpdateDefaultEvent::class, Listeners\AddressCreateOrUpdateDefaultListener::class);
         Event::listen(AddressCreateOrUpdateDeliveryEvent::class, Listeners\AddressCreateOrUpdateDeliveryListener::class);
         Event::listen(AddressCreateOrUpdateBillingEvent::class, Listeners\AddressCreateOrUpdateBillingListener::class);
+
+        Address::observe(AddressObserver::class);
     }
 
     /**
