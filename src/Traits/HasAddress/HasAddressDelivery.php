@@ -21,4 +21,25 @@ trait HasAddressDelivery
         return $this->morphMany(Address::class, 'address')
             ->where('type', 'DELIVERY');
     }
+
+    public function deliveryAddressDefault(): ?Address
+    {
+        return $this->addressDelivery()->default()->first();
+    }
+
+    /**
+     * Get the most used delivery addresses.
+     */
+    public function mostUsedDeliveryAddresses(int $limit = 5)
+    {
+        return $this->addressDelivery()->mostUsed($limit)->get();
+    }
+
+    /**
+     * Get the most used delivery address.
+     */
+    public function mostUsedDeliveryAddress(): ?Address
+    {
+        return $this->addressDelivery()->mostUsed(1)->first();
+    }
 }
