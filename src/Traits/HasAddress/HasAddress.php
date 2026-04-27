@@ -2,7 +2,7 @@
 
 namespace RiseTechApps\Address\Traits\HasAddress;
 
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use RiseTechApps\Address\Events\Address\AddressCreateOrUpdateDefaultEvent;
 use RiseTechApps\Address\Models\Address;
 
@@ -15,8 +15,8 @@ trait HasAddress
         });
     }
 
-    public function address(): HasOne
+    public function address(): MorphOne
     {
-        return $this->hasOne(Address::class, 'address_id')->where('type', 'DEFAULT');
+        return $this->morphOne(Address::class, 'address')->where('type', 'DEFAULT');
     }
 }
