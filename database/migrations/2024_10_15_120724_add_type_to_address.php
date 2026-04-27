@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('addresses', function (Blueprint $table) {
-            $table->string('type')->after('complement')->default('default')->nullable();
+            $table->string('type')->after('complement')->default('DEFAULT')->nullable();
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('address', function (Blueprint $table) {
-            //
+        Schema::table('addresses', function (Blueprint $table) {
+            $table->dropColumn('type');
         });
     }
 };
