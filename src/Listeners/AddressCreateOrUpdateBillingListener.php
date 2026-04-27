@@ -17,7 +17,7 @@ class AddressCreateOrUpdateBillingListener
     {
 
         try {
-            $created = !is_null($event->model->address);
+            $created = !is_null($event->model->addressBilling);
 
             $BillingAddresses = AddressPayloadResolver::multiple(
                 $event->request,
