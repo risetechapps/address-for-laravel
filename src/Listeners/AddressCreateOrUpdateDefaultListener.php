@@ -29,6 +29,11 @@ class AddressCreateOrUpdateDefaultListener
                 Address::getAddress()
             );
 
+            // Não criar endereço vazio se não houver dados no request
+            if (empty(array_filter($address))) {
+                return;
+            }
+
             $address = Address::fillWithDefault($address, $event->model);
 
             if($created === true){
