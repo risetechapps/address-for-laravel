@@ -9,6 +9,24 @@ use RiseTechApps\Address\Models\AddressHistory;
 class AddressObserver
 {
     /**
+     * Handle the Address "creating" event.
+     */
+    public function creating(Address $address): void
+    {
+        // Define como default automaticamente se for o primeiro endereço deste tipo
+        if (is_null($address->is_default)) {
+            $exists = Address::where('address_type', $address->address_type)
+                ->where('address_id', $address->address_id)
+                ->where('type', $address->type)
+                ->exists();
+
+            if (! $exists) {
+                $address->is_default = true;
+            }
+        }
+    }
+
+    /**
      * Handle the Address "created" event.
      */
     public function created(Address $address): void
