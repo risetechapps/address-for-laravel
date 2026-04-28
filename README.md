@@ -89,6 +89,49 @@ $client->billingAddresses()->create([
 ]);
 ```
 
+### Definir endereço principal (default)
+
+```php
+$address = $client->billingAddresses()->create([...]);
+$address->setAsDefault();
+
+// Ou buscar o endereço padrão
+$defaultBilling = $client->billingAddressDefault();
+$defaultDelivery = $client->deliveryAddressDefault();
+```
+
+---
+
+## 📊 Histórico de Uso
+
+Rastreie quantas vezes cada endereço foi utilizado:
+
+```php
+// Registrar uso de um endereço
+$address->incrementUsage();
+$address->incrementUsage('delivery', ['order_id' => 123]);
+
+// Ver contador
+$address->usage_count;      // 15
+$address->last_used_at;     // 2025-04-27 14:30:00
+
+// Endereços mais usados
+Address::mostUsed(10)->get();
+$client->mostUsedBillingAddresses(5);
+$client->mostUsedDeliveryAddress(); // O mais usado
+
+// Scopes úteis
+Address::mostUsed()->get();           // Ordenado por uso
+Address::recentlyUsed(30)->get();    // Usados nos últimos 30 dias
+Address::neverUsed()->get();          // Nunca usados
+Address::usedMoreThan(10)->get();     // Mais de 10 vezes
+
+// Logs detalhados
+$address->usageLogs()->get();
+$address->usageLogs()->byAction('delivery')->get();
+$address->usageLogs()->lastDays(7)->get();
+```
+
 ### Enviando um request com endereço incluído
 
 Caso envie um payload contendo `address`, `address_billing` ou `address_delivery`, os dados serão automaticamente persistidos com o model:
@@ -129,21 +172,64 @@ Esse comportamento é automático desde que seu controller/model esteja configur
 
 ---
 
-## 🧪 Testes
+## 🔍 Scopes de Consulta
 
-Para rodar os testes, execute:
+O pacote inclui diversos scopes para facilitar consultas:
 
-```bash
-  php artisan test
+```php
+// Buscar por estado
+Address::byState('SP')->get();
+
+// Buscar por cidade
+Address::byCity('São Paulo')->get();
+
+// Buscar por CEP
+Address::byZipCode('01310-100')->first();
+
+// Buscar por país
+Address::byCountry('BR')->get();
+
+// Buscar por bairro
+Address::byDistrict('Centro')->get();
+
+// Combinar scopes
+Address::byState('SP')->byCity('São Paulo')->byDistrict('Jardins')->get();
+
+// Buscar endereços padrão
+Address::default()->get();
 ```
 
-Ou usando PHPUnit diretamente:
+---
 
-```bash
-  ./vendor/bin/phpunit
+## 📝 Histórico de Alterações
+
+Todas as alterações em endereços são automaticamente registradas:
+
+```php
+// Ver histórico de um endereço
+$history = $address->history()->get();
+
+// Última alteração
+$latest = $address->latestHistory();
+
+// Filtrar por tipo de ação
+$createdEntries = $address->history()->created()->get();
+$updatedEntries = $address->history()->updated()->get();
+$deletedEntries = $address->history()->deleted()->get();
+
+// Ver mudanças específicas
+foreach ($history as $entry) {
+    echo $entry->description; // "Endereço atualizado"
+    print_r($entry->changes);   // ['city' => ['old' => 'SP', 'new' => 'RJ']]
+}
 ```
 
-Certifique-se de que todas as dependências estão instaladas e o ambiente `.env.testing` está configurado corretamente.
+O histórico inclui:
+- **Ação**: created, updated, deleted, restored
+- **Valores antigos e novos**
+- **IP e User Agent** do usuário
+- **ID do usuário** que fez a alteração
+- **Data/hora** da alteração
 
 ---
 
