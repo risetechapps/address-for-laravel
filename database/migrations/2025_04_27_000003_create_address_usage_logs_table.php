@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignUuid('address_id')->constrained('addresses')->onDelete('cascade');
             $table->string('action')->comment('delivery, billing, shipping, etc');
             $table->json('metadata')->nullable()->comment('order_id, invoice_id, etc');
-            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignUuid('user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
 
             $table->index('address_id');

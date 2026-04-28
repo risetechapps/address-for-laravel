@@ -19,7 +19,7 @@ return new class extends Migration
             $table->json('new_values')->nullable();
             $table->string('ip_address', 45)->nullable();
             $table->string('user_agent')->nullable();
-            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignUuid('user_id')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
 
             $table->index('address_id');
