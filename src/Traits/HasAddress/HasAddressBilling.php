@@ -8,23 +8,48 @@ use RiseTechApps\Address\Models\Address;
 
 trait HasAddressBilling
 {
-    public static function bootHasAddressBilling(): void
-    {
-        static::saved(function ($model) {
-            event(new AddressCreateOrUpdateBillingEvent($model));
-        });
-
-    }
-
     public function addressBilling(): MorphMany
     {
         return $this->morphMany(Address::class, 'address')
-            ->where('type', 'BILLING');
+            ->where('type', Address::TYPE_BILLING);
     }
 
     public function billingAddressDefault(): ?Address
     {
         return $this->addressBilling()->default()->first();
+    }
+
+    /**
+     * Sincroniza endereços de cobrança.
+     *
+     * @param array $data Dados que podem conter 'address_billing' ou 'person.address_billing'
+     * @return void
+     */
+    public function syncAddressBilling(array $data): void
+    {
+        // Resolve múltiplos endereços de cobrança
+        $billingAddresses = AddressPayloadResolver::multiple($data, 'address_billing');
+
+        if (empty($billingAddresses)) {
+            return;
+        }
+
+        // Remove endereços antigos
+        $this->addressBilling()->delete();
+
+        // Cria novos
+        foreach ($billingAddresses as $addressData) {
+            if (empty(array_filter($addressData))) {
+                continue;
+            }
+
+            Address::create([
+                'address_type' => get_class($this),
+                'address_id' => $this->getKey(),
+                'type' => Address::TYPE_BILLING,
+                ...$addressData,
+            ]);
+        }
     }
 
     /**
