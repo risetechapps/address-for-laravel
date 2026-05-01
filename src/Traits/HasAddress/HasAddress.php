@@ -8,15 +8,34 @@ use RiseTechApps\Address\Models\Address;
 
 trait HasAddress
 {
-    public static function bootHasAddress(): void
-    {
-        static::saved(function ($model) {
-            event(new AddressCreateOrUpdateDefaultEvent($model));
-        });
-    }
-
     public function address(): MorphOne
     {
-        return $this->morphOne(Address::class, 'address')->where('type', 'DEFAULT');
+        return $this->morphOne(Address::class, 'address')->where('type', Address::TYPE_DEFAULT);
+    }
+
+    /**
+     * Sincroniza o endereço padrão deste modelo.
+     *
+     * @param array $data Dados que podem conter 'address' ou 'person.address'
+     * @param bool $setAsDefault Se deve definir como padrão
+     * @return Address|null
+     */
+    public function syncAddress(array $data, bool $setAsDefault = true): ?Address
+    {
+        return Address::syncForModel($this, $data, Address::TYPE_DEFAULT, $setAsDefault);
+    }
+
+    /**
+     * Define o endereço deste modelo.
+     *
+     * Método alternativo mais curto para syncAddress.
+     *
+     * @param array $addressData Dados do endereço
+     * @param bool $setAsDefault
+     * @return Address|null
+     */
+    public function setAddress(array $addressData, bool $setAsDefault = true): ?Address
+    {
+        return Address::syncForModel($this, $addressData, Address::TYPE_DEFAULT, $setAsDefault);
     }
 }
