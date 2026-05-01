@@ -16,37 +16,31 @@ class AddressCreateOrUpdateDefaultListener
     public function handle(AddressCreateOrUpdateDefaultEvent $event): void
     {
         try {
-
+            // Pular se o modelo foi deletado
             if(!is_null($event->model->getOriginal('deleted_at'))){
                 return;
             }
 
-            $created = !is_null($event->model->address);
+            // Pega todos os dados da request para buscar o endereço
+            $requestData = $event->request->all();
 
-            $address = AddressPayloadResolver::single(
-                $event->request,
-                'address',
-                Address::getAddress()
+            // Usa o método centralizado que busca em 'address' ou 'person.address'
+            AddressModel::syncForModel(
+                $event->model,
+                $requestData,
+                AddressModel::TYPE_DEFAULT,
+                true
             );
 
-            // Não criar endereço vazio se não houver dados no request
-            if (empty(array_filter($address))) {
-                return;
-            }
-
-            $address = Address::fillWithDefault($address, $event->model);
-
-            if($created === true){
-                $event->model->address->update($address);
-            }else{
-                $address['address_type'] = get_class($event->model);
-                $address['address_id'] = $event->model->getKey();
-                $address['type'] = Address::TYPE_DEFAULT;
-                AddressModel::create($address);
-            }
-
         } catch (\Exception $exception) {
-            logglyError()->exception($exception)->performedOn($event->model)->log("Error registering address");
+            // Log para debug - se loggly falhar, ainda temos o laravel log
+            \Log::error('Address sync failed: ' . $exception->getMessage(), [
+                'model' => get_class($event->model),
+                'model_id' => $event->model->getKey(),
+                'trace' => $exception->getTraceAsString()
+            ]);
+
+            // Não relançar - evento não deve quebrar a requisição
         }
     }
 }
