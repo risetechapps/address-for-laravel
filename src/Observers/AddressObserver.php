@@ -69,16 +69,37 @@ class AddressObserver
      */
     private function logHistory(Address $address, string $action, ?array $oldValues, ?array $newValues): void
     {
-        $request = request();
+        try {
+            $request = request();
 
-        AddressHistory::create([
-            'address_id' => $address->id,
-            'action' => $action,
-            'old_values' => $oldValues,
-            'new_values' => $newValues,
-            'ip_address' => $request?->ip(),
-            'user_agent' => $request?->userAgent(),
-            'user_id' => Auth::id(),
-        ]);
+            // Tenta pegar o ID do usuário autenticado
+            // Em sistemas multi-tenant, o usuário pode estar em diferentes tabelas
+            $userId = Auth::id();
+
+            // Se houver um usuário autenticado, verifica se ele existe na tabela 'users'
+            // Isso evita violação de FK quando o usuário está em outra tabela (ex: 'authentications')
+            if ($userId) {
+                $userExists = \DB::table('users')->where('id', $userId)->exists();
+                if (! $userExists) {
+                    $userId = null; // Não salva user_id se não existe na tabela users
+                }
+            }
+
+            AddressHistory::create([
+                'address_id' => $address->id,
+                'action' => $action,
+                'old_values' => $oldValues,
+                'new_values' => $newValues,
+                'ip_address' => $request?->ip(),
+                'user_agent' => $request?->userAgent(),
+                'user_id' => $userId,
+            ]);
+        } catch (\Exception $e) {
+            // Se falhar ao salvar histórico, loga o erro mas não quebra a operação
+            \Log::warning('Failed to save address history: ' . $e->getMessage(), [
+                'address_id' => $address->id,
+                'action' => $action,
+            ]);
+        }
     }
 }
