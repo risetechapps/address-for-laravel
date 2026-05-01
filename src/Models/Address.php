@@ -22,6 +22,10 @@ class Address extends Model
     use HasFactory, Notifiable, HasUuid, SoftDeletes, HasToUpper, HasLoggly;
     use Prunable;
 
+    public const TYPE_DEFAULT = 'DEFAULT';
+    public const TYPE_DELIVERY = 'DELIVERY';
+    public const TYPE_BILLING = 'BILLING';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -243,5 +247,129 @@ class Address extends Model
             ->update(['is_default' => false]);
 
         $this->update(['is_default' => true]);
+    }
+
+    /**
+     * Sincroniza (cria ou atualiza) um endereço para um modelo.
+     *
+     * Busca endereço em $data['address'] ou $data['person']['address'].
+     * Funciona tanto para criação quanto atualização.
+     *
+     * @param Model $model O modelo que terá o endereço (Profile, User, etc)
+     * @param array $data Array de dados que pode conter o endereço
+     * @param string $type Tipo do endereço: DEFAULT, BILLING, DELIVERY
+     * @param bool $setAsDefault Se deve definir como endereço padrão
+     * @return static|null O endereço criado/atualizado ou null se não houver dados
+     *
+     * @example
+     * // Via HTTP Request
+     * Address::syncForModel($profile, $request->all());
+     *
+     * // Via array manual
+     * Address::syncForModel($profile, ['person' => ['address' => [...]]]);
+     *
+     * // Diretamente com endereço
+     * Address::syncForModel($profile, ['address' => [...]]);
+     */
+    public static function syncForModel(Model $model, array $data, string $type = self::TYPE_DEFAULT, bool $setAsDefault = true): ?static
+    {
+        $addressData = static::extractAddressFromData($data);
+
+        if (empty($addressData)) {
+            return null;
+        }
+
+        // Limpar campos vazios e normalizar
+        $addressData = array_filter($addressData, fn($value) => $value !== null && $value !== '');
+
+        // Verificar se já existe endereço deste tipo
+        $existingAddress = static::where('address_type', get_class($model))
+            ->where('address_id', $model->getKey())
+            ->where('type', $type)
+            ->first();
+
+        if ($existingAddress) {
+            $existingAddress->update($addressData);
+            $address = $existingAddress;
+        } else {
+            $addressData['address_type'] = get_class($model);
+            $addressData['address_id'] = $model->getKey();
+            $addressData['type'] = $type;
+            $address = static::create($addressData);
+        }
+
+        if ($setAsDefault) {
+            $address->setAsDefault();
+        }
+
+        return $address;
+    }
+
+    /**
+     * Extrai dados de endereço de um array.
+     *
+     * Busca em: 'address', 'person.address', ou retorna o próprio array se for endereço puro.
+     *
+     * @param array $data Array de dados
+     * @return array Dados do endereço ou array vazio
+     */
+    protected static function extractAddressFromData(array $data): array
+    {
+        // Caso 1: Dados diretos em 'address'
+        if (isset($data['address']) && is_array($data['address'])) {
+            // Verifica se é um endereço válido (tem campos esperados)
+            if (static::isValidAddressData($data['address'])) {
+                return $data['address'];
+            }
+        }
+
+        // Caso 2: Dados aninhados em 'person.address'
+        if (isset($data['person']['address']) && is_array($data['person']['address'])) {
+            if (static::isValidAddressData($data['person']['address'])) {
+                return $data['person']['address'];
+            }
+        }
+
+        // Caso 3: O próprio array é o endereço (chaves como zip_code, state, etc)
+        if (static::isValidAddressData($data)) {
+            // Verifica se tem pelo menos campos de endereço
+            $addressFields = ['zip_code', 'state', 'city', 'address', 'district'];
+            $hasAddressField = false;
+            foreach ($addressFields as $field) {
+                if (isset($data[$field])) {
+                    $hasAddressField = true;
+                    break;
+                }
+            }
+            if ($hasAddressField) {
+                return $data;
+            }
+        }
+
+        return [];
+    }
+
+    /**
+     * Verifica se um array contém dados válidos de endereço.
+     *
+     * @param array $data
+     * @return bool
+     */
+    protected static function isValidAddressData(array $data): bool
+    {
+        // Deve ser um array associativo (não uma lista)
+        if (empty($data) || array_is_list($data)) {
+            return false;
+        }
+
+        // Deve ter pelo menos um campo típico de endereço
+        $addressFields = ['zip_code', 'state', 'city', 'address', 'district', 'street', 'number'];
+        foreach ($addressFields as $field) {
+            if (array_key_exists($field, $data)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
