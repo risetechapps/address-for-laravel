@@ -51,7 +51,7 @@ class Client extends Model
 
 ## 💡 Exemplos de Uso
 
-### Criar um endereço padrão
+### Criar um endereço padrão (manual)
 
 ```php
 $client = Client::find(1);
@@ -65,39 +65,79 @@ $client->address()->create([
 ]);
 ```
 
-### Adicionar endereço de entrega
+### Criar via sync (recomendado para APIs)
 
 ```php
-$client->deliveryAddresses()->create([
-    'street' => 'Av. das Entregas',
-    'number' => '456',
-    'city' => 'Campinas',
-    'state' => 'SP',
-    'zipcode' => '13000-000',
+// Sincroniza automaticamente a partir do request
+$client->syncAddress($request->all());
+
+// Com array manual
+$client->syncAddress([
+    'person' => [
+        'name' => 'João',
+        'address' => [
+            'street' => 'Rua Principal',
+            'number' => '100',
+            'city' => 'São Paulo',
+            'state' => 'SP',
+            'zipcode' => '01000-000'
+        ]
+    ]
 ]);
 ```
 
 ### Adicionar endereço de cobrança
 
 ```php
-$client->billingAddresses()->create([
+// Manual
+$client->addressBilling()->create([
     'street' => 'Rua da Cobrança',
     'number' => '789',
     'city' => 'Ribeirão Preto',
     'state' => 'SP',
     'zipcode' => '14000-000',
 ]);
+
+// Via sync (suporta múltiplos)
+$client->syncAddressBilling([
+    'address_billing' => [
+        ['street' => 'Rua A', 'number' => '1'],
+        ['street' => 'Rua B', 'number' => '2'],
+    ]
+]);
+```
+
+### Adicionar endereço de entrega
+
+```php
+// Manual
+$client->addressDelivery()->create([
+    'street' => 'Av. das Entregas',
+    'number' => '456',
+    'city' => 'Campinas',
+    'state' => 'SP',
+    'zipcode' => '13000-000',
+]);
+
+// Via sync (suporta múltiplos)
+$client->syncAddressDelivery([
+    'address_delivery' => [
+        ['street' => 'Av. A', 'number' => '100'],
+        ['street' => 'Av. B', 'number' => '200'],
+    ]
+]);
 ```
 
 ### Definir endereço principal (default)
 
 ```php
-$address = $client->billingAddresses()->create([...]);
+$address = $client->addressBilling()->create([...]);
 $address->setAsDefault();
 
 // Ou buscar o endereço padrão
 $defaultBilling = $client->billingAddressDefault();
 $defaultDelivery = $client->deliveryAddressDefault();
+$defaultAddress = $client->address;  // Relação morphOne
 ```
 
 ---
@@ -119,6 +159,7 @@ $address->last_used_at;     // 2025-04-27 14:30:00
 Address::mostUsed(10)->get();
 $client->mostUsedBillingAddresses(5);
 $client->mostUsedDeliveryAddress(); // O mais usado
+$client->mostUsedBillingAddress();  // O mais usado
 
 // Scopes úteis
 Address::mostUsed()->get();           // Ordenado por uso
@@ -132,43 +173,81 @@ $address->usageLogs()->byAction('delivery')->get();
 $address->usageLogs()->lastDays(7)->get();
 ```
 
-### Enviando um request com endereço incluído
+## 🔧 Sincronizando Endereços
 
-Caso envie um payload contendo `address`, `address_billing` ou `address_delivery`, os dados serão automaticamente persistidos com o model:
+Os métodos `sync*` buscam automaticamente o endereço nos dados, suportando múltiplos formatos de payload:
 
+### Endereço Padrão (syncAddress)
+
+```php
+$client->syncAddress($data);  // Busca em 'address' ou 'person.address'
+```
+
+**Payloads suportados:**
+```json
+// Formato 1: person.address
+{
+  "person": {
+    "name": "João",
+    "address": { "street": "Rua Principal", "number": "100" }
+  }
+}
+
+// Formato 2: address direto
+{
+  "address": { "street": "Rua Principal", "number": "100" }
+}
+
+// Formato 3: array do endereço diretamente
+{ "street": "Rua Principal", "number": "100" }
+```
+
+### Endereço de Cobrança (syncAddressBilling)
+
+```php
+$client->syncAddressBilling($data);  // Busca em 'address_billing' ou 'person.address_billing'
+```
+
+Aceita múltiplos endereços:
 ```json
 {
-  "name": "João da Silva",
-  "email": "joao@example.com",
-  "address": {
-    "street": "Rua Principal",
-    "number": "100",
-    "city": "São Paulo",
-    "state": "SP",
-    "zipcode": "01000-000"
-  },
-  "address_billing": [
-    {
-      "street": "Rua da Fatura",
-      "number": "200",
-      "city": "São Paulo",
-      "state": "SP",
-      "zipcode": "02000-000"
-    }
-  ],
-  "address_delivery": [
-    {
-      "street": "Av. das Entregas",
-      "number": "300",
-      "city": "Campinas",
-      "state": "SP",
-      "zipcode": "13000-000"
-    }
-  ]
+  "person": {
+    "address_billing": [
+      { "street": "Rua da Fatura", "number": "200" },
+      { "street": "Rua Secundária", "number": "300" }
+    ]
+  }
 }
 ```
 
-Esse comportamento é automático desde que seu controller/model esteja configurado para aceitar os relacionamentos e realizar a persistência corretamente.
+### Endereço de Entrega (syncAddressDelivery)
+
+```php
+$client->syncAddressDelivery($data);  // Busca em 'address_delivery' ou 'person.address_delivery'
+```
+
+**Exemplo completo no Controller:**
+
+```php
+public function update(Request $request)
+{
+    $client = $request->user();
+    $data = $request->validated();
+
+    // Atualiza dados básicos
+    $client->update($data['person']);
+
+    // Sincroniza endereços (busca automaticamente nos lugares certos)
+    $client->syncAddress($data);
+    $client->syncAddressBilling($data);
+    $client->syncAddressDelivery($data);
+
+    // Recarrega relacionamentos para retornar na resposta
+    $client->load(['address', 'addressBilling', 'addressDelivery']);
+
+    return response()->json($client);
+}
+```
 
 ---
 
@@ -230,6 +309,25 @@ O histórico inclui:
 - **IP e User Agent** do usuário
 - **ID do usuário** que fez a alteração
 - **Data/hora** da alteração
+
+---
+
+## 📋 Campos do Endereço
+
+Campos disponíveis para todos os tipos de endereço:
+
+| Campo | Tipo | Obrigatório | Descrição |
+|-------|------|-------------|-----------|
+| `zip_code` | string | Sim | CEP |
+| `country` | string | Sim | País (ex: BRA) |
+| `state` | string | Sim | Estado/Província |
+| `city` | string | Sim | Cidade |
+| `district` | string | Sim | Bairro |
+| `address` | string | Sim | Logradouro |
+| `number` | string | Sim | Número |
+| `complement` | string | Não | Complemento |
+
+**Nota:** Campos vazios ou nulos são automaticamente filtrados pelo método `sync*`.
 
 ---
 
