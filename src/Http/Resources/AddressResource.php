@@ -37,7 +37,7 @@ class AddressResource extends JsonResource
             if ($result['success'] === true) {
                 $data = collect($result['data']);
                 $translation = collect($data->get('translations', []));
-                $defaultName = $data->get('native', "");
+                $defaultName = $data->get('name', "");
                 return $translation->get(app()->getLocale(), $defaultName);
             }
             return "";
