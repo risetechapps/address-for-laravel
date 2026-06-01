@@ -3,8 +3,8 @@
 namespace RiseTechApps\Address\Traits\HasAddress;
 
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use RiseTechApps\Address\Events\Address\AddressCreateOrUpdateBillingEvent;
 use RiseTechApps\Address\Models\Address;
+use RiseTechApps\Address\Support\AddressPayloadResolver;
 
 trait HasAddressBilling
 {
@@ -39,15 +39,17 @@ trait HasAddressBilling
 
         // Cria novos
         foreach ($billingAddresses as $addressData) {
-            if (empty(array_filter($addressData))) {
+            $addressData = array_filter($addressData, fn($value) => $value !== null && $value !== '');
+
+            if (empty($addressData)) {
                 continue;
             }
 
             Address::create([
+                ...$addressData,
                 'address_type' => get_class($this),
                 'address_id' => $this->getKey(),
                 'type' => Address::TYPE_BILLING,
-                ...$addressData,
             ]);
         }
     }

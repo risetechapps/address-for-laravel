@@ -57,11 +57,13 @@ class Client extends Model
 $client = Client::find(1);
 
 $client->address()->create([
-    'street' => 'Rua Exemplo',
+    'address' => 'Rua Exemplo',
     'number' => '123',
+    'district' => 'Centro',
     'city' => 'São Paulo',
     'state' => 'SP',
-    'zipcode' => '01234-567',
+    'country' => 'BRA',
+    'zip_code' => '01234-567',
 ]);
 ```
 
@@ -76,11 +78,13 @@ $client->syncAddress([
     'person' => [
         'name' => 'João',
         'address' => [
-            'street' => 'Rua Principal',
+            'address' => 'Rua Principal',
             'number' => '100',
+            'district' => 'Centro',
             'city' => 'São Paulo',
             'state' => 'SP',
-            'zipcode' => '01000-000'
+            'country' => 'BRA',
+            'zip_code' => '01000-000'
         ]
     ]
 ]);
@@ -91,18 +95,20 @@ $client->syncAddress([
 ```php
 // Manual
 $client->addressBilling()->create([
-    'street' => 'Rua da Cobrança',
+    'address' => 'Rua da Cobrança',
     'number' => '789',
+    'district' => 'Centro',
     'city' => 'Ribeirão Preto',
     'state' => 'SP',
-    'zipcode' => '14000-000',
+    'country' => 'BRA',
+    'zip_code' => '14000-000',
 ]);
 
 // Via sync (suporta múltiplos)
 $client->syncAddressBilling([
     'address_billing' => [
-        ['street' => 'Rua A', 'number' => '1'],
-        ['street' => 'Rua B', 'number' => '2'],
+        ['address' => 'Rua A', 'number' => '1'],
+        ['address' => 'Rua B', 'number' => '2'],
     ]
 ]);
 ```
@@ -112,18 +118,20 @@ $client->syncAddressBilling([
 ```php
 // Manual
 $client->addressDelivery()->create([
-    'street' => 'Av. das Entregas',
+    'address' => 'Av. das Entregas',
     'number' => '456',
+    'district' => 'Centro',
     'city' => 'Campinas',
     'state' => 'SP',
-    'zipcode' => '13000-000',
+    'country' => 'BRA',
+    'zip_code' => '13000-000',
 ]);
 
 // Via sync (suporta múltiplos)
 $client->syncAddressDelivery([
     'address_delivery' => [
-        ['street' => 'Av. A', 'number' => '100'],
-        ['street' => 'Av. B', 'number' => '200'],
+        ['address' => 'Av. A', 'number' => '100'],
+        ['address' => 'Av. B', 'number' => '200'],
     ]
 ]);
 ```
@@ -175,7 +183,7 @@ $address->usageLogs()->lastDays(7)->get();
 
 ## 🔧 Sincronizando Endereços
 
-Os métodos `sync*` buscam automaticamente o endereço nos dados, suportando múltiplos formatos de payload:
+Os métodos `sync*` buscam automaticamente o endereço nos dados, suportando múltiplos formatos de payload. Aceitam tanto um `array` quanto um `Illuminate\Http\Request` — útil tanto em controllers quanto em jobs/processamento em segundo plano:
 
 ### Endereço Padrão (syncAddress)
 
@@ -189,17 +197,17 @@ $client->syncAddress($data);  // Busca em 'address' ou 'person.address'
 {
   "person": {
     "name": "João",
-    "address": { "street": "Rua Principal", "number": "100" }
+    "address": { "address": "Rua Principal", "number": "100" }
   }
 }
 
 // Formato 2: address direto
 {
-  "address": { "street": "Rua Principal", "number": "100" }
+  "address": { "address": "Rua Principal", "number": "100" }
 }
 
 // Formato 3: array do endereço diretamente
-{ "street": "Rua Principal", "number": "100" }
+{ "address": "Rua Principal", "number": "100" }
 ```
 
 ### Endereço de Cobrança (syncAddressBilling)
@@ -213,8 +221,8 @@ Aceita múltiplos endereços:
 {
   "person": {
     "address_billing": [
-      { "street": "Rua da Fatura", "number": "200" },
-      { "street": "Rua Secundária", "number": "300" }
+      { "address": "Rua da Fatura", "number": "200" },
+      { "address": "Rua Secundária", "number": "300" }
     ]
   }
 }

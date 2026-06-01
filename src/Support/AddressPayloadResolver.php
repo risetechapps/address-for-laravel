@@ -6,23 +6,34 @@ use Illuminate\Http\Request;
 
 class AddressPayloadResolver
 {
-    public static function single(Request $request, string $key, array $fallback = []): array
+    /**
+     * Resolve um endereço a partir de um Request ou array.
+     *
+     * Busca em $data[$key] ou $data['person'][$key].
+     */
+    public static function single(Request|array $data, string $key, array $fallback = []): array
     {
-        if ($request->has($key)) {
-            return (array) $request->input($key);
+        $data = $data instanceof Request ? $data->all() : $data;
+
+        if (array_key_exists($key, $data) && !empty($data[$key])) {
+            return (array) $data[$key];
         }
 
-        $nestedKey = sprintf('person.%s', $key);
-        if ($request->has($nestedKey)) {
-            return (array) $request->input($nestedKey);
+        if (isset($data['person'][$key]) && !empty($data['person'][$key])) {
+            return (array) $data['person'][$key];
         }
 
         return $fallback;
     }
 
-    public static function multiple(Request $request, string $key, array $fallback = []): array
+    /**
+     * Resolve um ou mais endereços, sempre retornando uma lista de arrays.
+     *
+     * Aceita tanto um endereço único quanto uma lista de endereços.
+     */
+    public static function multiple(Request|array $data, string $key, array $fallback = []): array
     {
-        $payload = static::single($request, $key, $fallback);
+        $payload = static::single($data, $key, $fallback);
 
         if (empty($payload)) {
             return [];
