@@ -29,9 +29,7 @@ class AddressCreateOrUpdateBillingListener
                 return;
             }
 
-            $addresses = array_filter($BillingAddresses, function ($address) {
-                return collect($address)->filter()->isNotEmpty();
-            });
+            $addresses = array_filter($BillingAddresses, fn($address) => collect($address)->filter()->isNotEmpty());
 
             if (empty($addresses)) {
                 return;
@@ -45,7 +43,7 @@ class AddressCreateOrUpdateBillingListener
                 foreach ($BillingAddresses as $address) {
                     $address = Address::fillWithDefault($address, $event->model);
 
-                    $address['address_type'] = get_class($event->model);
+                    $address['address_type'] = $event->model::class;
                     $address['address_id'] = $event->model->getKey();
                     $address['type'] = Address::TYPE_BILLING;
                     AddressModel::create($address);

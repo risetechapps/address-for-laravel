@@ -29,9 +29,7 @@ class AddressCreateOrUpdateDeliveryListener
                 return;
             }
 
-            $addresses = array_filter($chargeAddresses, function ($address) {
-                return collect($address)->filter()->isNotEmpty();
-            });
+            $addresses = array_filter($chargeAddresses, fn($address) => collect($address)->filter()->isNotEmpty());
 
             if (empty($addresses)) {
                 return;
@@ -46,7 +44,7 @@ class AddressCreateOrUpdateDeliveryListener
                 foreach ($chargeAddresses as $address) {
                     $address = \RiseTechApps\Address\Address::fillWithDefault($address, $event->model);
 
-                    $address['address_type'] = get_class($event->model);
+                    $address['address_type'] = $event->model::class;
                     $address['address_id'] = $event->model->getKey();
                     $address['type'] = Address::TYPE_DELIVERY;
                     AddressModel::create($address);

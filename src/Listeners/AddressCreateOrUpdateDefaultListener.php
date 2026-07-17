@@ -35,7 +35,7 @@ class AddressCreateOrUpdateDefaultListener
         } catch (\Exception $exception) {
             // Log para debug - se loggly falhar, ainda temos o laravel log
             \Log::error('Address sync failed: ' . $exception->getMessage(), [
-                'model' => get_class($event->model),
+                'model' => $event->model::class,
                 'model_id' => $event->model->getKey(),
                 'trace' => $exception->getTraceAsString()
             ]);

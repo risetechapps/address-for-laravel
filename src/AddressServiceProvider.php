@@ -30,11 +30,10 @@ class AddressServiceProvider extends ServiceProvider
     /**
      * Register the application services.
      */
+    #[\Override]
     public function register(): void
     {
         // Register the Address model to use with the facade
-        $this->app->singleton('address', function () {
-            return new Models\Address;
-        });
+        $this->app->singleton('address', fn() => new Models\Address);
     }
 }

@@ -14,7 +14,6 @@ class AddressCreateOrUpdateDeliveryEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public Model $model;
     public Request $request;
 
     /**
@@ -22,9 +21,8 @@ class AddressCreateOrUpdateDeliveryEvent
      *
      * @return void
      */
-    public function __construct(Model $model)
+    public function __construct(public Model $model)
     {
-        $this->model = $model;
         $this->request = request();
     }
 

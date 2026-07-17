@@ -3,8 +3,8 @@
 namespace RiseTechApps\Address\Traits\HasAddress;
 
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use RiseTechApps\Address\Events\Address\AddressCreateOrUpdateDeliveryEvent;
 use RiseTechApps\Address\Models\Address;
+use RiseTechApps\Address\Support\AddressPayloadResolver;
 
 trait HasAddressDelivery
 {
@@ -44,7 +44,7 @@ trait HasAddressDelivery
             }
 
             Address::create([
-                'address_type' => get_class($this),
+                'address_type' => $this::class,
                 'address_id' => $this->getKey(),
                 'type' => Address::TYPE_DELIVERY,
                 ...$addressData,

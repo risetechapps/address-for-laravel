@@ -5,6 +5,7 @@ namespace RiseTechApps\Address\Traits\HasAddress;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use RiseTechApps\Address\Events\Address\AddressCreateOrUpdateBillingEvent;
 use RiseTechApps\Address\Models\Address;
+use RiseTechApps\Address\Support\AddressPayloadResolver;
 
 trait HasAddressBilling
 {
@@ -44,7 +45,7 @@ trait HasAddressBilling
             }
 
             Address::create([
-                'address_type' => get_class($this),
+                'address_type' => $this::class,
                 'address_id' => $this->getKey(),
                 'type' => Address::TYPE_BILLING,
                 ...$addressData,
