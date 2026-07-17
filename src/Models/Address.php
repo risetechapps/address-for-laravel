@@ -126,7 +126,7 @@ class Address extends Model
     /**
      * Scope to get most used addresses.
      */
-    public function scopeMostUsed(Builder $query, int $limit = null): Builder
+    public function scopeMostUsed(Builder $query, ?int $limit = null): Builder
     {
         $query->orderBy('usage_count', 'desc');
 
@@ -283,7 +283,7 @@ class Address extends Model
         $addressData = array_filter($addressData, fn($value) => $value !== null && $value !== '');
 
         // Verificar se já existe endereço deste tipo
-        $existingAddress = static::where('address_type', get_class($model))
+        $existingAddress = static::where('address_type', $model::class)
             ->where('address_id', $model->getKey())
             ->where('type', $type)
             ->first();
@@ -292,7 +292,7 @@ class Address extends Model
             $existingAddress->update($addressData);
             $address = $existingAddress;
         } else {
-            $addressData['address_type'] = get_class($model);
+            $addressData['address_type'] = $model::class;
             $addressData['address_id'] = $model->getKey();
             $addressData['type'] = $type;
             $address = static::create($addressData);
@@ -334,13 +334,8 @@ class Address extends Model
         if (static::isValidAddressData($data)) {
             // Verifica se tem pelo menos campos de endereço
             $addressFields = ['zip_code', 'state', 'city', 'address', 'district'];
-            $hasAddressField = false;
-            foreach ($addressFields as $field) {
-                if (isset($data[$field])) {
-                    $hasAddressField = true;
-                    break;
-                }
-            }
+            $hasAddressField = array_any($addressFields, fn($field) => isset($data[$field]));
+
             if ($hasAddressField) {
                 return $data;
             }
@@ -364,12 +359,6 @@ class Address extends Model
 
         // Deve ter pelo menos um campo típico de endereço
         $addressFields = ['zip_code', 'state', 'city', 'address', 'district', 'street', 'number'];
-        foreach ($addressFields as $field) {
-            if (array_key_exists($field, $data)) {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any($addressFields, fn($field) => array_key_exists($field, $data));
     }
 }
