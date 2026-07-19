@@ -3,26 +3,29 @@
 namespace RiseTechApps\Address\Support;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 
 class AddressPayloadResolver
 {
-    public static function single(Request $request, string $key, array $fallback = []): array
+    public static function single(Request|array $source, string $key, array $fallback = []): array
     {
-        if ($request->has($key)) {
-            return (array) $request->input($key);
+        $data = $source instanceof Request ? $source->all() : $source;
+
+        if (Arr::has($data, $key)) {
+            return (array) Arr::get($data, $key);
         }
 
         $nestedKey = sprintf('person.%s', $key);
-        if ($request->has($nestedKey)) {
-            return (array) $request->input($nestedKey);
+        if (Arr::has($data, $nestedKey)) {
+            return (array) Arr::get($data, $nestedKey);
         }
 
         return $fallback;
     }
 
-    public static function multiple(Request $request, string $key, array $fallback = []): array
+    public static function multiple(Request|array $source, string $key, array $fallback = []): array
     {
-        $payload = static::single($request, $key, $fallback);
+        $payload = static::single($source, $key, $fallback);
 
         if (empty($payload)) {
             return [];

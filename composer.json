@@ -18,10 +18,10 @@
     "require": {
         "php": "^8.3",
         "illuminate/support": "^12",
-        "risetechapps/has-uuid-for-laravel": "^1.0.0",
+        "risetechapps/has-uuid-for-laravel": "^1.2.0",
         "risetechapps/to-upper-for-laravel": "^1.2.0",
-        "tpetry/laravel-postgresql-enhanced": "^3.5.1",
-        "risetechapps/monitoring-for-laravel": "^3.0.0",
+        "tpetry/laravel-postgresql-enhanced": "^3.7.0",
+        "risetechapps/monitoring-for-laravel": "^4.0.0",
         "risetechapps/orchestrator-link-for-laravel": "^1.1.0"
     },
     "require-dev": {
@@ -63,5 +63,5 @@
     },
     "minimum-stability": "stable",
     "prefer-stable": true,
-    "version": "1.8.0"
+    "version": "1.8.1"
 }

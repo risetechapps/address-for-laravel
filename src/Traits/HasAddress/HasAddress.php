@@ -3,7 +3,6 @@
 namespace RiseTechApps\Address\Traits\HasAddress;
 
 use Illuminate\Database\Eloquent\Relations\MorphOne;
-use RiseTechApps\Address\Events\Address\AddressCreateOrUpdateDefaultEvent;
 use RiseTechApps\Address\Models\Address;
 
 trait HasAddress

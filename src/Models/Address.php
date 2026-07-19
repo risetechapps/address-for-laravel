@@ -334,7 +334,7 @@ class Address extends Model
         if (static::isValidAddressData($data)) {
             // Verifica se tem pelo menos campos de endereço
             $addressFields = ['zip_code', 'state', 'city', 'address', 'district'];
-            $hasAddressField = array_any($addressFields, fn($field) => isset($data[$field]));
+            $hasAddressField = collect($addressFields)->contains(fn($field) => isset($data[$field]));
 
             if ($hasAddressField) {
                 return $data;
@@ -359,6 +359,6 @@ class Address extends Model
 
         // Deve ter pelo menos um campo típico de endereço
         $addressFields = ['zip_code', 'state', 'city', 'address', 'district', 'street', 'number'];
-        return array_any($addressFields, fn($field) => array_key_exists($field, $data));
+        return collect($addressFields)->contains(fn($field) => array_key_exists($field, $data));
     }
 }
