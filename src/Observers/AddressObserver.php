@@ -72,18 +72,7 @@ class AddressObserver
         try {
             $request = request();
 
-            // Tenta pegar o ID do usuário autenticado
-            // Em sistemas multi-tenant, o usuário pode estar em diferentes tabelas
-            $userId = Auth::id();
-
-            // Se houver um usuário autenticado, verifica se ele existe na tabela 'users'
-            // Isso evita violação de FK quando o usuário está em outra tabela (ex: 'authentications')
-            if ($userId) {
-                $userExists = \DB::table('users')->where('id', $userId)->exists();
-                if (! $userExists) {
-                    $userId = null; // Não salva user_id se não existe na tabela users
-                }
-            }
+            $userId = $this->resolveHistoryUserId();
 
             AddressHistory::create([
                 'address_id' => $address->id,
@@ -101,5 +90,33 @@ class AddressObserver
                 'action' => $action,
             ]);
         }
+    }
+
+    /**
+     * Resolve o user_id do histórico, validando contra a tabela configurada.
+     *
+     * Antes: sempre consultava a tabela `users` por escrita — em apps onde o
+     * usuário vive em outra tabela (ex.: `authentications`), o check sempre
+     * falhava (user_id ficava null) E gastava 1 query por escrita de endereço.
+     *
+     * Agora vem de config('address.history.user_table'):
+     *  - '<tabela>' → valida ali (aponte para a tabela real do usuário);
+     *  - null/''    → não valida nem grava (zero query).
+     */
+    private function resolveHistoryUserId(): int|string|null
+    {
+        $userId = Auth::id();
+
+        if (!$userId) {
+            return null;
+        }
+
+        $table = config('address.history.user_table', 'users');
+
+        if (empty($table)) {
+            return null;
+        }
+
+        return \DB::table($table)->where('id', $userId)->exists() ? $userId : null;
     }
 }
