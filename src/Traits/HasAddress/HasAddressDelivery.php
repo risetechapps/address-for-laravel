@@ -34,22 +34,35 @@ trait HasAddressDelivery
             return;
         }
 
-        // Remove endereços antigos
-        $this->addressDelivery()->delete();
+        // Diff (não delete-all + recreate): atualiza existentes por id, cria os
+        // novos e remove só os ausentes. Evita o churn de soft-delete — cada sync
+        // apagava TODOS e recriava, acumulando linhas mortas na tabela.
+        $existing = $this->addressDelivery()->get()->keyBy('id');
+        $processedIds = [];
 
-        // Cria novos
         foreach ($deliveryAddresses as $addressData) {
             if (empty(array_filter($addressData))) {
                 continue;
             }
 
-            Address::create([
-                'address_type' => $this::class,
-                'address_id' => $this->getKey(),
-                'type' => Address::TYPE_DELIVERY,
-                ...$addressData,
-            ]);
+            $id = $addressData['id'] ?? null;
+
+            if ($id && isset($existing[$id])) {
+                $existing[$id]->update($addressData);
+                $processedIds[] = $id;
+            } else {
+                $created = Address::create([
+                    'address_type' => $this::class,
+                    'address_id' => $this->getKey(),
+                    'type' => Address::TYPE_DELIVERY,
+                    ...$addressData,
+                ]);
+                $processedIds[] = $created->getKey();
+            }
         }
+
+        // Remove os endereços que não vieram no payload.
+        $this->addressDelivery()->whereNotIn('id', $processedIds)->delete();
     }
 
     /**
