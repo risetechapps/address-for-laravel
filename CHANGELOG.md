@@ -3,6 +3,28 @@
 Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), e este projeto segue o [Versionamento Semântico](https://semver.org/lang/pt-BR/) (SemVer).
 
+## [2.0.0] - 2026-07-20
+
+### Changed
+- **`syncAddressBilling()` e `syncAddressDelivery()` passam a fazer DIFF** em vez de delete-all + recreate. Antes, cada sync apagava (soft-delete) TODOS os endereços do tipo e recriava — acumulando linhas mortas na tabela (churn) e disparando N× o observer. Agora atualiza os existentes por `id`, cria os novos e remove só os ausentes do payload.
+
+### Fixed
+- **`AddressObserver` deixou de gastar 1 query por escrita** validando o `user_id` contra a tabela `users` hardcoded. Em apps multi-tenant (usuário em `authentications`, não `users`) o check sempre falhava — `user_id` do histórico ficava sempre null E gastava a query. Agora a tabela vem de `config('address.history.user_table')` (default `'users'`); use `null` para pular a validação (zero query) ou aponte para a tabela real do usuário. Novo arquivo de config publicável (`config/address.php`).
+
+## [1.8.2] - 2026-07-19
+
+### Performance
+- **Removidos 8 índices ociosos da tabela `addresses`** (migration `drop_unused_indexes_from_addresses`). O planner do PostgreSQL avaliava todos os índices ao planejar cada query: com 8 sem uso (`idx_scan = 0`), o **planejamento** de uma busca de endereço custava ~11ms (220 buffers de catálogo) enquanto a **execução** leva 0.06ms — os 14-26ms observados por request eram planning, não busca. Mantidos apenas a PK e o índice composto `(address_type, address_id, type, is_default)`, o único usado no caminho quente. O `(address_type, address_id)` (uuidMorphs) era prefixo redundante do composto. Drop via `CONCURRENTLY` (não trava a tabela). `down()` recria os índices.
+  > Se a app passar a filtrar por `state`/`city`/`zip_code`/`usage_count` etc. em produção, recrie o índice específico.
+
+## [1.8.1] - 2026-06-01
+
+### Fixed
+- Corrigido `syncAddressBilling()` e `syncAddressDelivery()` que lançavam erro fatal: faltava o `use` de `AddressPayloadResolver` e o resolver só aceitava `Request`
+- `AddressPayloadResolver::single()` e `::multiple()` agora aceitam tanto `Request` quanto `array`
+- Garantido que `type` (BILLING/DELIVERY) e os campos morph não sejam sobrescritos pelo payload ao criar endereços
+- Campos vazios/nulos do payload de billing e delivery agora são descartados antes do `create()`
+
 ## [1.8.0] - 2026-06-01
 - Corrigido parametros de country
 
