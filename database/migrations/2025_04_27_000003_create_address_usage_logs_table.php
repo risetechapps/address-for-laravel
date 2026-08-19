@@ -16,12 +16,13 @@ return new class extends Migration
             $table->foreignUuid('address_id')->constrained('addresses')->onDelete('cascade');
             $table->string('action')->comment('delivery, billing, shipping, etc');
             $table->json('metadata')->nullable()->comment('order_id, invoice_id, etc');
-            $table->uuidMorphs('user');
+            $table->uuid('user_id')->nullable();
             $table->timestamps();
 
             $table->index('address_id');
             $table->index('action');
             $table->index('created_at');
+            $table->index('user_id');
         });
     }
 

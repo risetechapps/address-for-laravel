@@ -18,7 +18,7 @@ class AddressServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->publishes([
                 __DIR__ . '/../config/config.php' => config_path('address.php'),
-            ], 'config');
+            ], ['config', 'address-config']);
         }
 
         Address::observe(AddressObserver::class);
