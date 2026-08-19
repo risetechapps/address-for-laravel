@@ -33,11 +33,19 @@ class Client extends Model
 }
 ```
 
-3. Execute as migrations:
+3. Publique o arquivo de configuração (opcional):
+
+```bash
+  php artisan vendor:publish --tag=address-config
+```
+
+4. Execute as migrations:
 
 ```bash
   php artisan migrate
 ```
+
+> **Multi-tenant:** as tabelas do pacote vivem no banco de cada tenant. Rode também o comando de migração do seu pacote de tenancy (ex.: `php artisan tenancy:migrate`) — o `migrate` sozinho atinge apenas o banco central.
 
 ---
 
@@ -307,8 +315,24 @@ O histórico inclui:
 - **Ação**: created, updated, deleted, restored
 - **Valores antigos e novos**
 - **IP e User Agent** do usuário
-- **ID do usuário** que fez a alteração
+- **ID do usuário** que fez a alteração (`user_id`, nullable)
 - **Data/hora** da alteração
+
+### Quem alterou (`user_id`)
+
+O `user_id` gravado em `address_histories` e `address_usage_logs` vem de `Auth::id()` e **não tem foreign key** — a tabela do usuário varia por aplicação. Antes de gravar, o observer valida o id contra a tabela definida em `config('address.history.user_table')`:
+
+```php
+// config/address.php
+'history' => [
+    // 'users'            → valida nessa tabela (1 query por escrita de endereço)
+    // 'authentications'  → aponte para a tabela real do usuário
+    // null               → não valida nem grava user_id (zero query)
+    'user_table' => env('ADDRESS_HISTORY_USER_TABLE', 'users'),
+],
+```
+
+Se o id não existir na tabela configurada, o histórico é salvo com `user_id = null` em vez de falhar.
 
 ---
 

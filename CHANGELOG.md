@@ -3,6 +3,17 @@
 Todas as alterações notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), e este projeto segue o [Versionamento Semântico](https://semver.org/lang/pt-BR/) (SemVer).
 
+## [2.1.0] - 2026-08-19
+
+### Fixed
+- **`address_histories` não tinha a coluna `user_id`**, apesar de o `AddressObserver` gravá-la em toda escrita de endereço. Toda alteração falhava com `SQLSTATE[42703]: Undefined column: column "user_id" of relation "address_histories" does not exist` — o histórico nunca era salvo (o erro era engolido pelo `try/catch` do observer e virava apenas um `Log::warning`). A migration de criação gerava `uuidMorphs('addressable')` (colunas `addressable_type`/`addressable_id`, NOT NULL) que nenhum ponto do código preenchia ou lia. Agora a tabela tem `user_id` uuid nullable indexado, e os morphs órfãos foram removidos.
+- **`address_usage_logs` tinha o mesmo defeito, latente:** a migration gerava `uuidMorphs('user')` → `user_type` NOT NULL (nunca preenchido) + `user_id` NOT NULL. `incrementUsage()` grava apenas `user_id`, e ele pode ser null quando não há usuário autenticado — ou seja, o método quebraria em ambos os casos. `user_type` foi removido e `user_id` passou a ser nullable e indexado.
+
+### Changed
+- O config publicável agora responde também à tag dedicada `address-config` (`vendor:publish --tag=address-config`), além da tag genérica `config`, que continua funcionando.
+
+> **Ação necessária:** rode `php artisan migrate` e, em apps multi-tenant, também `php artisan tenancy:migrate` — o erro acima ocorre no banco do tenant, que não é atingido pelo `migrate` do banco central. A migration de correção (`2026_08_19_000000_fix_history_and_usage_user_columns`) é idempotente: usa guards `hasColumn`/`hasIndex` e roda igual em base antiga ou em instalação nova.
+
 ## [2.0.0] - 2026-07-20
 
 ### Changed
